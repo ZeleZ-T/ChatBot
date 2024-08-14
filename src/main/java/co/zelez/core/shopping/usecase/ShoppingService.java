@@ -1,51 +1,55 @@
 package co.zelez.core.shopping.usecase;
 
-import co.zelez.core.shopping.dto.ItemInDTO;
-import co.zelez.core.shopping.dto.SearchInDTO;
-import co.zelez.core.shopping.entity.ShopItem;
+import co.zelez.core.common.Tuple;
 import co.zelez.core.shopping.repository.IShopRepository;
 import lombok.AllArgsConstructor;
 
-import java.util.List;
+import java.util.HashMap;
 
 @AllArgsConstructor
-public class ShoppingService {
+public class ShoppingService implements IShoppingService{
     private final IShopRepository shopRepository;
 
-    public void removeItem(SearchInDTO searchDTO){
-        int ID = (searchDTO.ID() != -1) ? searchDTO.ID() : shopRepository.getIDByName(searchDTO.name());
-        int quantity = searchDTO.quantity();
-
-        if(quantity == -1 ||
-                quantity >= (shopRepository.getItemByID(ID).getItemQuantity())) {
-
-            shopRepository.removeItemByID(ID);
-            return;
-        }
-        ShopItem item = shopRepository.getItemByID(ID);
-        item.setItemQuantity(item.getItemQuantity() - quantity);
-        shopRepository.updateItemByID(ID, item);
+    @Override
+    public void addItem(String name, Tuple<Float, Integer> data) {
+        shopRepository.setItem(name, data);
     }
 
-    public void anotherItem(SearchInDTO searchDTO){
-        int ID = (searchDTO.ID() != -1) ? searchDTO.ID() : shopRepository.getIDByName(searchDTO.name());
-        int quantity = (searchDTO.quantity() < 0) ? searchDTO.quantity() : 1;
-
-        ShopItem item = shopRepository.getItemByID(ID);
-        item.setItemQuantity(item.getItemQuantity() + quantity);
-        shopRepository.updateItemByID(ID, item);
+    @Override
+    public void addItem(String name, int quantity) {
+        quantity += shopRepository.getShopList().get(name).y();
+        shopRepository.setItem(name,
+                new Tuple<>(shopRepository.getShopList().get(name).x(),
+                        quantity));
     }
 
-    public void addItem(ItemInDTO itemDTO){
-        shopRepository.addItem(new ShopItem(itemDTO.name(), itemDTO.price(), itemDTO.quantity()));
+    @Override
+    public void addItem(String name) {
+        addItem(name, 1);
     }
 
-    public int getTotalCost() {
-        int totalCost = 0;
-        List<ShopItem> list = this.shopRepository.getShopList();
-        for (ShopItem item : list) {
-            totalCost += item.getItemPrice() * item.getItemQuantity();
-        }
-        return totalCost;
+    @Override
+    public void removeItem(String name, int quantity) {
+        shopRepository.removeItem(name, quantity);
+    }
+
+    @Override
+    public void removeItem(String name) {
+        shopRepository.removeItem(name);
+    }
+
+    @Override
+    public String getItemName(int id) {
+        return shopRepository.itemName(id);
+    }
+
+    @Override
+    public boolean listContains(String name) {
+        return shopRepository.listContains(name);
+    }
+
+    @Override
+    public String getList() {
+        return shopRepository.outputList();
     }
 }

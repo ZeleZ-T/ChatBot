@@ -1,15 +1,19 @@
 package co.zelez.core.shopping.repository;
 
-import co.zelez.core.shopping.entity.ShopItem;
+import co.zelez.core.common.Tuple;
 
-import java.util.List;
+import java.util.HashMap;
 
 public interface IShopRepository {
-    void addItem(ShopItem item);
-    void updateItemByID(int ID, ShopItem item);
-    void removeItemByID(int ID);
-    ShopItem getItemByID(int ID);
-    int getIDByName(String name);
+    void setItem(String name, Tuple<Float, Integer> data);
+    String getItem(String name);
 
-    List<ShopItem> getShopList();
+    void removeItem(String name, int quantity);
+    void removeItem(String name);
+
+    String itemName(int id);
+    boolean listContains(String name);
+
+    HashMap<String, Tuple<Float, Integer>> getShopList();
+    String outputList();
 }
