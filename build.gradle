@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id "io.freefair.lombok" version "8.6"
+    id "jacoco"
 }
 
 group = 'co.zelez'
@@ -18,3 +19,25 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+jacocoTestReport {
+    dependsOn(test)
+    dependsOn jacocoTestCoverageVerification
+    reports {
+        csv.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        failOnViolation
+        rule {
+            classDirectories.setFrom(jacocoTestReport.getAllClassDirs())
+            limit {
+                minimum = 0.8
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestReport
