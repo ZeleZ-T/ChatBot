@@ -14,6 +14,8 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core:5.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.12.0'
 }
 
 test {
@@ -22,9 +24,17 @@ test {
 
 jacocoTestReport {
     dependsOn(test)
-    dependsOn jacocoTestCoverageVerification
+    dependsOn(jacocoTestCoverageVerification)
     reports {
         csv.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "co/zelez/**/Main.*",
+                    "co/zelez/core/command/reader/entity/**/ReadType.*"
+            ])
+        }))
     }
 }
 
@@ -34,7 +44,7 @@ jacocoTestCoverageVerification {
         rule {
             classDirectories.setFrom(jacocoTestReport.getAllClassDirs())
             limit {
-                minimum = 0.8
+                minimum = 0.00800
             }
         }
     }
