@@ -2,8 +2,10 @@ package co.zelez.core.chat.usecase;
 
 import co.zelez.core.command.reader.entity.Param;
 import co.zelez.core.command.reader.usecase.ReaderService;
+import lombok.Generated;
 
 public class ConsoleManager implements IManager {
+    @Generated
     @Override
     public void chat() {
         ReaderService read = new ReaderService();

@@ -6,6 +6,7 @@ import co.zelez.core.common.Tuple;
 import co.zelez.core.common.Util;
 import co.zelez.core.shopping.usecase.IShoppingService;
 import lombok.AllArgsConstructor;
+import lombok.Generated;
 
 @AllArgsConstructor
 public class ShopReader implements IReader {
@@ -62,11 +63,13 @@ public class ShopReader implements IReader {
         } else return null;
     }
 
+    @Generated
     private String paramGetName(Param param) {
         return !Util.isNumeric(param.getArgs()[0]) ?
                 param.getArgs()[0] :
                 service.getItemName(Integer.parseInt(param.getArgs()[0]));
     }
+    @Generated
     private int paramGetQuantity(Param param, int position) {
         position--;
         return param.getArgs().length > position && Util.isNumeric(param.getArgs()[position]) ?

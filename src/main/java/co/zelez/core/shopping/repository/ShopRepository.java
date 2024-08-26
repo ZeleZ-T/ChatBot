@@ -1,6 +1,7 @@
 package co.zelez.core.shopping.repository;
 
 import co.zelez.core.common.Tuple;
+import lombok.Generated;
 import lombok.Getter;
 
 import java.util.*;
@@ -43,7 +44,7 @@ public class ShopRepository implements IShopRepository {
 
     @Override
     public String itemName(int id) {
-        return nameDB.get(id);
+        return nameDB.getOrDefault(id, null);
     }
 
     @Override
@@ -53,9 +54,10 @@ public class ShopRepository implements IShopRepository {
 
     @Override
     public HashMap<String, Tuple<Float, Integer>> getShopList() {
-        return listDB;
+        return listDB.isEmpty() ? null : listDB;
     }
 
+    @Generated
     @Override
     public String outputList() {
         float totalCost = 0f;
