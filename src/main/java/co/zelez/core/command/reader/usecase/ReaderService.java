@@ -1,7 +1,6 @@
 package co.zelez.core.command.reader.usecase;
 
 import co.zelez.core.command.reader.entity.Param;
-import co.zelez.core.command.reader.entity.ReadType;
 import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.ShoppingService;
 
@@ -24,20 +23,9 @@ public class ReaderService {
     public Param buildParam(String input) {
         String[] parts = input.split(" ");
 
-        String rawType = parts[0].toUpperCase();
-        ReadType readType = selectType(rawType);
-
         return Param.builder().
-                type(readType).
-                command(parts.length > 1 ? parts[1] : "").
-                args(parts.length > 2 ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0]).
+                command(parts[0]).
+                args(parts.length > 1 ? Arrays.copyOfRange(parts, 1, parts.length) : new String[0]).
                 build();
-    }
-
-    private ReadType selectType(String input) {
-        return switch (input) {
-            case "SHOP" -> ReadType.SHOP;
-            default -> ReadType.HELP;
-        };
     }
 }

@@ -4,10 +4,10 @@ import co.zelez.core.command.reader.entity.Param;
 import co.zelez.core.command.reader.usecase.ReaderService;
 import lombok.Generated;
 
-public class ConsoleManager implements IManager {
+public class ConsoleManager {
+
     @Generated
-    @Override
-    public void chat() {
+    public ConsoleManager() {
         ReaderService read = new ReaderService();
         String input = "";
         Param param;

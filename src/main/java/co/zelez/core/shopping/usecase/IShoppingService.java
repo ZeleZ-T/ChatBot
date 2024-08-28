@@ -10,6 +10,8 @@ public interface IShoppingService {
     void removeItem(String name, int quantity);
     void removeItem(String name);
 
+    void clearList();
+
     String getItemName(int id);
     boolean listContains(String name);
 

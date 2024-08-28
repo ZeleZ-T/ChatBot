@@ -11,6 +11,8 @@ public interface IShopRepository {
     void removeItem(String name, int quantity);
     void removeItem(String name);
 
+    void removeAllItems();
+
     String itemName(int id);
     boolean listContains(String name);
 

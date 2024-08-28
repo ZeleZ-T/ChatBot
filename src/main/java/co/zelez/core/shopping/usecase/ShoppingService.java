@@ -41,6 +41,11 @@ public class ShoppingService implements IShoppingService{
     }
 
     @Override
+    public void clearList() {
+        shopRepository.removeAllItems();
+    }
+
+    @Override
     public String getItemName(int id) {
         return shopRepository.itemName(id);
     }

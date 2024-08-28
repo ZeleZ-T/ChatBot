@@ -3,26 +3,33 @@ package co.zelez.core.command.reader.usecase;
 import co.zelez.core.command.reader.entity.Param;
 import lombok.Generated;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class HelpReader implements IReader {
-    @Generated
     @Override
     public String read(Param param) {
-        return """
-                To create new shop item use:
-                shop add/a (Name) (Price)                         [Add one of (Name) to the list]
-                shop add/a (name) (Price) (Quantity)              [Add (Quantity) of (Name) to the list]
+        return help();
+    }
+
+    @Generated
+    public static String help() {
+        List<String> emojis = Arrays.asList("\uD83C\uDD95", "\u2935", "\u267B", "\uD83D\uDCCB");
+        return String.format("""
+                %s To create new shop item use:
+                add / a (Name) (Price)
+                add / a (name) (Price) (Quantity)
                 
-                To add more quantity of existing item use:
-                shop add/a (Existing name/ID)                     [Add one more of the item to the list]
-                shop add/a (Existing name/ID) (Quantity)          [Add (Quantity) more of the item to the list]
+                %s To add more quantity of existing item use:
+                add / a (Existing name / ID)
+                add / a (Existing name/ ID) (Quantity)
+              
+                %s To remove shop item use:
+                remove / r (Existing name / ID)
+                remove / r (Existing name / ID) (Quantity)
                 
-                To remove shop item use:
-                shop remove/r (Existing name/ID)                  [Remove all (Name) in list]
-                shop remove/r (Existing name/ID) (Quantity)       [Remove (Quantity) of (Name) in list]
-                
-                To read shop list use:
-                shop list
-                shop total
-                """;
+                %s  To read actual shop list use:
+                list / total
+                """, emojis.get(0), emojis.get(1), emojis.get(2), emojis.get(3));
     }
 }
