@@ -3,6 +3,7 @@ package co.zelez.core.shopping.usecase;
 import co.zelez.core.common.Tuple;
 import co.zelez.core.shopping.repository.IShopRepository;
 import lombok.AllArgsConstructor;
+import lombok.Generated;
 
 import java.util.HashMap;
 
@@ -23,6 +24,7 @@ public class ShoppingService implements IShoppingService{
                         quantity));
     }
 
+    @Generated
     @Override
     public void addItem(String name) {
         addItem(name, 1);
@@ -36,6 +38,11 @@ public class ShoppingService implements IShoppingService{
     @Override
     public void removeItem(String name) {
         shopRepository.removeItem(name);
+    }
+
+    @Override
+    public void clearList() {
+        shopRepository.removeAllItems();
     }
 
     @Override

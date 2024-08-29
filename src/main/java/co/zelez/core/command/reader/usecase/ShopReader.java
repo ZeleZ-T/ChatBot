@@ -1,24 +1,26 @@
 package co.zelez.core.command.reader.usecase;
 
 import co.zelez.core.command.reader.entity.Param;
-import co.zelez.core.command.reader.entity.ReadType;
 import co.zelez.core.common.Tuple;
 import co.zelez.core.common.Util;
+import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.IShoppingService;
+import co.zelez.core.shopping.usecase.ShoppingService;
 import lombok.AllArgsConstructor;
+import lombok.Generated;
+
+import java.util.Objects;
 
 @AllArgsConstructor
-public class ShopReader implements IReader {
+public class ShopReader {
     private final IShoppingService service;
 
-    @Override
     public String read(Param param) {
-        if (param.getType() != ReadType.SHOP) return null;
-
         return switch (param.getCommand().toLowerCase()) {
-            case "remove", "r" -> remove(param);
             case "add", "a" -> add(param);
-            case "total", "list", "" -> service.getList();
+            case "remove", "r" -> remove(param);
+            case "clear", "c" -> clear();
+            case "total", "t", "list", "l" -> service.getList();
             default -> null;
         };
     }
@@ -26,24 +28,28 @@ public class ShopReader implements IReader {
     public String add(Param param) {
         String name = paramGetName(param);
         if (!service.listContains(name)) {
-            int quantity = paramGetQuantity(param, 3);
+            if (Util.isNumeric(name)) return "To add a new item, name can't be a number \n" +
+                    "Add (Item) (Price)";
+
+            int quantity = paramGetQuantity(param, 2);
             float price = 0f;
 
             if (param.getArgs().length >= 2 && Util.isNumeric(param.getArgs()[1])) {
                 price = Float.parseFloat(param.getArgs()[1]);
-            } else return null;
+            } else return "To add a new item, you must set a price \n" +
+                    "Add (Item) (Price)";
 
             service.addItem(name, new Tuple<>(price, quantity > 0 ? quantity : 1));
             return name + " Added" + "\n\n" + service.getList();
         } else {
-            int quantity = paramGetQuantity(param, 2);
+            int quantity = paramGetQuantity(param, 1);
             if (quantity > 0) {
                 service.addItem(name, quantity);
-                return quantity + " " + name + " Added " + "\n\n" + service.getList();
+                return quantity + " " + name + " Added \n\n" + service.getList();
             }
             else {
                 service.addItem(name);
-                return name + " Added" + "\n\n" + service.getList();
+                return name + " Added \n\n" + service.getList();
             }
         }
     }
@@ -59,16 +65,30 @@ public class ShopReader implements IReader {
                 service.removeItem(name);
                 return "All " + name + " Removed" + "\n\n" + service.getList();
             }
-        } else return null;
+        } else {
+            name = name != null ? name : param.getArgs()[0];
+            return name + " Not Found";
+        }
     }
 
-    private String paramGetName(Param param) {
-        return !Util.isNumeric(param.getArgs()[0]) ?
-                param.getArgs()[0] :
-                service.getItemName(Integer.parseInt(param.getArgs()[0]));
+    public String clear() {
+        if (!Objects.equals(service.getList(), "List is empty")) {
+            service.clearList();
+            return "List cleared";
+        } else return "List is empty, nothing to clear";
     }
+
+    @Generated
+    private String paramGetName(Param param) {
+
+        return  Util.isNumeric(param.getArgs()[0]) &&
+                service.getItemName(Integer.parseInt(param.getArgs()[0])) != null ?
+
+                service.getItemName(Integer.parseInt(param.getArgs()[0])) :
+                param.getArgs()[0];
+    }
+    @Generated
     private int paramGetQuantity(Param param, int position) {
-        position--;
         return param.getArgs().length > position && Util.isNumeric(param.getArgs()[position]) ?
                 Integer.parseInt(param.getArgs()[position]) : -1;
     }
