@@ -3,6 +3,7 @@ package co.zelez.core.shopping.repository;
 import co.zelez.core.common.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
@@ -255,5 +256,74 @@ class ShopRepositoryTest {
 
         //Assert
         assertNull(listReturned);
+    }
+
+    @Test
+    void When_DB_empty_Then_return_list_is_empty() {
+        //Arrange
+        IShopRepository shopRepository = new ShopRepository();
+
+        String expectedString = "List is empty";
+
+        //Act
+        String stringReturned = shopRepository.outputList();
+
+        //Assert
+        assertEquals(expectedString, stringReturned);
+    }
+
+    @Test
+    void When_item_in_DB_Then_return_list() throws NoSuchFieldException, IllegalAccessException {
+        //Arrange
+        IShopRepository shopRepository = new ShopRepository();
+
+        String itemName = "soda";
+        Tuple<Float, Integer> data = new Tuple<>(5.0f, 2);
+
+        Field itemsField = ShopRepository.class.getDeclaredField("listDB");
+        itemsField.setAccessible(true);
+        HashMap<String, Tuple<Float, Integer>> testItems = new HashMap<>(Collections.singletonMap(itemName, data));
+        itemsField.set(shopRepository, testItems);
+
+        Field namesField = ShopRepository.class.getDeclaredField("nameDB");
+        namesField.setAccessible(true);
+        HashMap<Integer, String> testNames = new HashMap<>(Collections.singletonMap(1, itemName));
+        namesField.set(shopRepository, testNames);
+
+        String expectedString ="Shop List:\n" +
+                "[" + 1 + "] - " + String.format("%s %s: %s", data.y(), itemName, data.x()) + "\n\n" +
+                "Total Cost: " + data.x() * data.y() + "\n";
+
+        //Act
+        String stringReturned = shopRepository.outputList();
+
+        //Assert
+        assertEquals(expectedString, stringReturned);
+    }
+
+    @Test
+    void When_remove_all_items_Then_all_DB_empty() throws NoSuchFieldException, IllegalAccessException {
+        //Arrange
+        IShopRepository shopRepository = spy(new ShopRepository());
+
+        String itemName = "soda";
+        Tuple<Float, Integer> data = new Tuple<>(5.0f, 2);
+
+        Field itemsField = ShopRepository.class.getDeclaredField("listDB");
+        itemsField.setAccessible(true);
+        HashMap<String, Tuple<Float, Integer>> testItems = mock();
+        itemsField.set(shopRepository, testItems);
+
+        Field namesField = ShopRepository.class.getDeclaredField("nameDB");
+        namesField.setAccessible(true);
+        HashMap<Integer, String> testNames = mock();
+        namesField.set(shopRepository, testNames);
+
+        //Act
+        shopRepository.removeAllItems();
+
+        //Assert
+        verify(testItems, atLeastOnce()).clear();
+        verify(testNames, atLeastOnce()).clear();
     }
 }

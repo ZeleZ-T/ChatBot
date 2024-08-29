@@ -56,11 +56,6 @@ class ShoppingServiceTest {
     }
 
     @Test
-    void testAddItem() {
-
-    }
-
-    @Test
     void Given_an_name_and_quantity_Then_return_call_removeItem() {
         //Arrange
         String itemName = "soda";
@@ -115,6 +110,18 @@ class ShoppingServiceTest {
         //Assert
         verify(shopRepo, atLeastOnce()).listContains(null);
         assertTrue(boolReturned);
+    }
+
+    @Test
+    void Then_return_call_removeAllItems() {
+        //Arrange
+        doNothing().when(shopRepo).removeAllItems();
+
+        //Act
+        service.clearList();
+
+        //Assert
+        verify(shopRepo, atLeastOnce()).removeAllItems();
     }
 
     @Test

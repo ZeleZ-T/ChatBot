@@ -12,6 +12,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.telegram:telegrambots-longpolling:7.9.1'
+    implementation 'org.telegram:telegrambots-client:7.9.1'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core:5.11.0'
@@ -44,7 +46,7 @@ jacocoTestCoverageVerification {
         rule {
             classDirectories.setFrom(jacocoTestReport.getAllClassDirs())
             limit {
-                minimum = 0.00800
+                minimum = 0.8000
             }
         }
     }

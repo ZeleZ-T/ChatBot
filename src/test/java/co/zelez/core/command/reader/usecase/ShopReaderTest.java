@@ -1,7 +1,6 @@
 package co.zelez.core.command.reader.usecase;
 
 import co.zelez.core.command.reader.entity.Param;
-import co.zelez.core.command.reader.entity.ReadType;
 import co.zelez.core.shopping.usecase.ShoppingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,9 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,7 +26,6 @@ class ShopReaderTest {
         String expectedReturn = "correct";
 
         Param param = Mockito.mock(Param.class);
-        when(param.getType()).thenReturn(ReadType.SHOP);
         when(param.getCommand()).thenReturn(input);
 
         doReturn(expectedReturn).when(spyShopReader).remove(param);
@@ -51,7 +47,6 @@ class ShopReaderTest {
         String expectedReturn = "correct";
 
         Param param = Mockito.mock(Param.class);
-        when(param.getType()).thenReturn(ReadType.SHOP);
         when(param.getCommand()).thenReturn(input);
 
         doReturn(expectedReturn).when(spyShopReader).add(param);
@@ -74,7 +69,6 @@ class ShopReaderTest {
         String expectedReturn = "correct";
 
         Param param = Mockito.mock(Param.class);
-        when(param.getType()).thenReturn(ReadType.SHOP);
         when(param.getCommand()).thenReturn(input);
 
         doReturn(expectedReturn).when(shoppingService).getList();
@@ -88,27 +82,11 @@ class ShopReaderTest {
     }
 
     @Test
-    void Given_help_readType_Then_return_null() {
-        //Arrange
-        ShopReader shopReader = new ShopReader(null);
-
-        Param param = Mockito.mock(Param.class);
-        when(param.getType()).thenReturn(ReadType.HELP);
-
-        //Act
-        String stringReturned = shopReader.read(param);
-
-        //Assert
-        assertNull(stringReturned);
-    }
-
-    @Test
     void Given_command_When_not_exist_Then_return_null() {
         //Arrange
         ShopReader shopReader = new ShopReader(null);
 
         Param param = Mockito.mock(Param.class);
-        when(param.getType()).thenReturn(ReadType.SHOP);
         when(param.getCommand()).thenReturn("wrong");
 
         //Act
@@ -119,11 +97,7 @@ class ShopReaderTest {
     }
 
     @Test
-    void add() {
-    }
-
-    @Test
-    void Given_name_When_not_exists_Then_return_null() {
+    void Given_remove_name_When_not_exists_Then_return_not_found() {
         //Arrange
         ShoppingService service = Mockito.mock(ShoppingService.class);
         ShopReader shopReader = new ShopReader(service);
@@ -134,12 +108,119 @@ class ShopReaderTest {
         args[0] = itemName;
         Param param = Param.builder().args(args).build();
 
+        String expectedReturn = itemName + " Not Found";
+
         doReturn(false).when(service).listContains(itemName);
 
         //Act
         String returnedString = spyReader.remove(param);
 
         //Assert
-        assertNull(returnedString);
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    @Test
+    void Given_add_name_When_not_exists_Then_return_not_found() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader spyReader = new ShopReader(service);
+
+        String itemName = "soda";
+        String[] args = new String[1];
+        args[0] = itemName;
+        Param param = Param.builder().args(args).build();
+
+        String expectedReturn = "To add a new item, you must set a price \n" +
+                "Add (Item) (Price)";
+
+        doReturn(false).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = spyReader.add(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    @Test
+    void Given_add_name_When_exists_Then_return_not_found() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader shopReader = new ShopReader(service);
+        ShopReader spyReader = spy(shopReader);
+
+        String itemName = "soda";
+        String[] args = new String[1];
+        args[0] = itemName;
+        Param param = Param.builder().args(args).build();
+
+        String expectedReturn = itemName + " Added \n\n" + service.getList();
+
+
+        doReturn(true).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = spyReader.add(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+
+    @Test
+    void Given_add_name_quantity_When_exists_Then_return_not_found() {
+        //Arrange
+        ShoppingService service = mock(ShoppingService.class);
+        ShopReader shopReader = new ShopReader(service);
+        ShopReader spyReader = spy(shopReader);
+
+        String itemName = "soda";
+        String[] args = new String[2];
+        args[0] = itemName;
+        args[1] = "123";
+        Param param = Param.builder().args(args).build();
+
+        when(service.getList()).thenReturn("list");
+        String expectedReturn = args[1] + " " + itemName + " Added \n\n" + "list";
+
+        doReturn(true).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = spyReader.add(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    @Test
+    void When_list_empty_Then_return_nothing_to_clear() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader shopReader = new ShopReader(service);
+        String expectedReturn = "List is empty, nothing to clear";
+
+        when(service.getList()).thenReturn("List is empty");
+
+        //Act
+        String returned = shopReader.clear();
+
+        //Assert
+        assertEquals(expectedReturn, returned);
+    }
+
+    @Test
+    void When_list_not_empty_Then_return_clear() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader shopReader = new ShopReader(service);
+        String expectedReturn = "List cleared";
+
+        when(service.getList()).thenReturn("List isn't empty");
+
+        //Act
+        String returned = shopReader.clear();
+
+        //Assert
+        assertEquals(expectedReturn, returned);
     }
 }

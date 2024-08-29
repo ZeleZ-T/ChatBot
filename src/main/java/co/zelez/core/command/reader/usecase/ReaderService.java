@@ -1,43 +1,36 @@
 package co.zelez.core.command.reader.usecase;
 
 import co.zelez.core.command.reader.entity.Param;
-import co.zelez.core.command.reader.entity.ReadType;
 import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.ShoppingService;
+import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
 
+import static co.zelez.core.command.reader.usecase.HelpReader.help;
+
+@AllArgsConstructor
 public class ReaderService {
-    private final IReader[] readers = {
-      new ShopReader(new ShoppingService(new ShopRepository())),
-      new HelpReader()
-    };
+    private final ShopReader shopReader;
+
+    public ReaderService() {
+        ShopRepository shopRepository = new ShopRepository();
+        ShoppingService shoppingService = new ShoppingService(shopRepository);
+        this.shopReader = new ShopReader(shoppingService);
+    }
 
     public String readParam(Param param) {
-        for (IReader reader : readers) {
-            String answer = reader.read(param);
+            String answer = shopReader.read(param);
             if (answer != null) return answer;
-        }
-        return "ERROR";
+            else return help();
     }
 
     public Param buildParam(String input) {
         String[] parts = input.split(" ");
 
-        String rawType = parts[0].toUpperCase();
-        ReadType readType = selectType(rawType);
-
         return Param.builder().
-                type(readType).
-                command(parts.length > 1 ? parts[1] : "").
-                args(parts.length > 2 ? Arrays.copyOfRange(parts, 2, parts.length) : new String[0]).
+                command(parts[0]).
+                args(parts.length > 1 ? Arrays.copyOfRange(parts, 1, parts.length) : new String[0]).
                 build();
-    }
-
-    private ReadType selectType(String input) {
-        return switch (input) {
-            case "SHOP" -> ReadType.SHOP;
-            default -> ReadType.HELP;
-        };
     }
 }

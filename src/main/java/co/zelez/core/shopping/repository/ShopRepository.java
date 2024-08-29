@@ -7,8 +7,8 @@ import lombok.Getter;
 import java.util.*;
 
 public class ShopRepository implements IShopRepository {
-    private final HashMap<String, Tuple<Float, Integer>> listDB = new HashMap<String, Tuple<Float, Integer>>();
-    private final HashMap<Integer, String> nameDB = new HashMap<Integer, String>();
+    private final HashMap<String, Tuple<Float, Integer>> listDB = new HashMap<>();
+    private final HashMap<Integer, String> nameDB = new HashMap<>();
 
     @Override
     public void setItem(String name, Tuple<Float, Integer> data) {
@@ -36,6 +36,12 @@ public class ShopRepository implements IShopRepository {
     }
 
     @Override
+    public void removeAllItems() {
+        listDB.clear();
+        nameDB.clear();
+    }
+
+    @Override
     public void removeItem(String name, int quantity) {
         if (listDB.get(name).y() > quantity) {
             setItem(name, new Tuple<>(listDB.get(name).x(), listDB.get(name).y() - quantity));
@@ -57,21 +63,22 @@ public class ShopRepository implements IShopRepository {
         return listDB.isEmpty() ? null : listDB;
     }
 
-    @Generated
     @Override
     public String outputList() {
+        if (listDB.isEmpty()) return "List is empty";
+
         float totalCost = 0f;
         StringBuilder listOutput = new StringBuilder();
         listOutput.append("Shop List:\n");
-        int i = 1;
 
-        for (String key : listDB.keySet()) {
+        for (int i = 1; i <= listDB.size(); i++) {
+            String key = itemName(i);
+
             Tuple<Float, Integer> value = listDB.get(key);
             totalCost += value.x() * value.y();
 
-            String out = "[" + i + "] " + getItem(key);
+            String out = "[" + i + "] - " + getItem(key);
             listOutput.append(out).append("\n");
-            i++;
         }
         listOutput.append("\n").append("Total Cost: ").append(totalCost).append("\n");
         return listOutput.toString();
