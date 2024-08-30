@@ -3,6 +3,7 @@ package co.zelez.plugin.telegram;
 import co.zelez.core.command.reader.entity.Param;
 import co.zelez.core.command.reader.usecase.ReaderService;
 import co.zelez.core.command.reader.usecase.ShopReader;
+import co.zelez.core.common.FileManager;
 import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.ShoppingService;
 
@@ -18,40 +19,34 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.lang.reflect.Type;
+import java.io.File;
 import java.util.HashMap;
 
 public class TelegramManager implements LongPollingSingleThreadUpdateConsumer {
-    private final TelegramClient telegramClient;
     private final HashMap<Long, ShopRepository> repository = new HashMap<>();
+    private final TelegramClient telegramClient;
+    private final FileManager fileManager;
 
+    @Generated
     public TelegramManager(String botToken, TelegramClient client) {
         telegramClient = client;
+        fileManager = new FileManager("storage/data.json");
 
-        try {
-            Gson gson = new Gson();
-            Type type = new TypeToken<HashMap<Long, ShopRepository>>() { }.getType();
-            JsonReader jsonReader = new JsonReader(new FileReader("storage/data.json"));
-            HashMap<Long, ShopRepository> jsonMap = gson.fromJson(jsonReader, type);
+        repository.putAll(fileManager.getShopData());
 
-            if (jsonMap != null) {
-                repository.putAll(jsonMap);
-            }
+        try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
+            botsApplication.registerBot(botToken, this);
+            System.out.println("Successfully started!");
+            Thread.currentThread().join();
 
-            try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
-                botsApplication.registerBot(botToken, this);
-                System.out.println("Successfully started!");
-                Thread.currentThread().join();
-            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public TelegramManager(TelegramClient client) {
+    public TelegramManager(TelegramClient client, FileManager manager) {
         telegramClient = client;
+        fileManager = manager;
     }
 
     @Override
@@ -88,16 +83,7 @@ public class TelegramManager implements LongPollingSingleThreadUpdateConsumer {
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
-            try {
-                Gson gson = new Gson();
-
-                String json = gson.toJson(repository);
-                FileWriter file = new FileWriter("storage/data.json");
-                file.write(json);
-                file.close();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            fileManager.setShopData(repository);
         }
     }
 
