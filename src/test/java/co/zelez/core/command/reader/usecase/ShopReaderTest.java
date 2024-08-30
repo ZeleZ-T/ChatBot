@@ -17,6 +17,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ShopReaderTest {
 
+    //Commands
     @ParameterizedTest
     @ValueSource(strings = {"r", "remove"})
     void Given_remove_Then_call_remove(String input) {
@@ -96,12 +97,13 @@ class ShopReaderTest {
         assertNull(stringReturned);
     }
 
+    //Remove
     @Test
     void Given_remove_name_When_not_exists_Then_return_not_found() {
         //Arrange
         ShoppingService service = Mockito.mock(ShoppingService.class);
         ShopReader shopReader = new ShopReader(service);
-        ShopReader spyReader = spy(shopReader);
+        ShopReader reader = spy(shopReader);
 
         String itemName = "soda";
         String[] args = new String[1];
@@ -113,17 +115,65 @@ class ShopReaderTest {
         doReturn(false).when(service).listContains(itemName);
 
         //Act
-        String returnedString = spyReader.remove(param);
+        String returnedString = reader.remove(param);
 
         //Assert
         assertEquals(expectedReturn, returnedString);
     }
 
     @Test
+    void Given_remove_name_When_exists_Then_return_all_removed() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader reader = new ShopReader(service);
+
+        String itemName = "soda";
+        String[] args = new String[1];
+        args[0] = itemName;
+        Param param = Param.builder().args(args).build();
+
+        when(service.getList()).thenReturn("list");
+        String expectedReturn = "All " + itemName + " Removed \n\n" + "list";
+
+        doReturn(true).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = reader.remove(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    @Test
+    void Given_remove_name_quantity_When_exists_Then_return_removed() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader reader = new ShopReader(service);
+
+        String itemName = "soda";
+        String[] args = new String[2];
+        args[0] = itemName;
+        args[1] = "1";
+        Param param = Param.builder().args(args).build();
+
+        when(service.getList()).thenReturn("list");
+        String expectedReturn = args[1] + " " + itemName + " Removed \n\n" + "list";
+
+        doReturn(true).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = reader.remove(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    //Add
+    @Test
     void Given_add_name_When_not_exists_Then_return_not_found() {
         //Arrange
         ShoppingService service = Mockito.mock(ShoppingService.class);
-        ShopReader spyReader = new ShopReader(service);
+        ShopReader reader = new ShopReader(service);
 
         String itemName = "soda";
         String[] args = new String[1];
@@ -136,18 +186,18 @@ class ShopReaderTest {
         doReturn(false).when(service).listContains(itemName);
 
         //Act
-        String returnedString = spyReader.add(param);
+        String returnedString = reader.add(param);
 
         //Assert
         assertEquals(expectedReturn, returnedString);
     }
 
     @Test
-    void Given_add_name_When_exists_Then_return_not_found() {
+    void Given_add_name_When_exists_Then_return_added() {
         //Arrange
         ShoppingService service = Mockito.mock(ShoppingService.class);
         ShopReader shopReader = new ShopReader(service);
-        ShopReader spyReader = spy(shopReader);
+        ShopReader reader = spy(shopReader);
 
         String itemName = "soda";
         String[] args = new String[1];
@@ -160,19 +210,18 @@ class ShopReaderTest {
         doReturn(true).when(service).listContains(itemName);
 
         //Act
-        String returnedString = spyReader.add(param);
+        String returnedString = reader.add(param);
 
         //Assert
         assertEquals(expectedReturn, returnedString);
     }
 
-
     @Test
-    void Given_add_name_quantity_When_exists_Then_return_not_found() {
+    void Given_add_name_quantity_When_exists_Then_return_added() {
         //Arrange
         ShoppingService service = mock(ShoppingService.class);
         ShopReader shopReader = new ShopReader(service);
-        ShopReader spyReader = spy(shopReader);
+        ShopReader reader = spy(shopReader);
 
         String itemName = "soda";
         String[] args = new String[2];
@@ -186,12 +235,62 @@ class ShopReaderTest {
         doReturn(true).when(service).listContains(itemName);
 
         //Act
-        String returnedString = spyReader.add(param);
+        String returnedString = reader.add(param);
 
         //Assert
         assertEquals(expectedReturn, returnedString);
     }
 
+    @Test
+    void Given_add_name_price_When_not_exists_Then_return_added() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader reader = new ShopReader(service);
+
+        String itemName = "soda";
+        String[] args = new String[2];
+        args[0] = itemName;
+        args[1] = "5";
+        Param param = Param.builder().args(args).build();
+
+        when(service.getList()).thenReturn("list");
+        String expectedReturn = itemName + " Added \n\n" + "list";
+
+        doReturn(false).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = reader.add(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    @Test
+    void Given_add_name_price_quantity_When_not_exists_Then_return_added() {
+        //Arrange
+        ShoppingService service = Mockito.mock(ShoppingService.class);
+        ShopReader reader = new ShopReader(service);
+
+        String itemName = "soda";
+        String[] args = new String[3];
+        args[0] = itemName;
+        args[1] = "5";
+        args[2] = "2";
+        Param param = Param.builder().args(args).build();
+
+        when(service.getList()).thenReturn("list");
+        String expectedReturn = args[2] + " " + itemName + " Added \n\n" + "list";
+
+        doReturn(false).when(service).listContains(itemName);
+
+        //Act
+        String returnedString = reader.add(param);
+
+        //Assert
+        assertEquals(expectedReturn, returnedString);
+    }
+
+    //List
     @Test
     void When_list_empty_Then_return_nothing_to_clear() {
         //Arrange

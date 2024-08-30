@@ -39,15 +39,20 @@ public class ShopReader {
             } else return "To add a new item, you must set a price \n" +
                     "Add (Item) (Price)";
 
-            service.addItem(name, new Tuple<>(price, quantity > 0 ? quantity : 1));
-            return name + " Added" + "\n\n" + service.getList();
+            if (quantity > 0) {
+                service.addItem(name, new Tuple<>(price, quantity));
+                return quantity + " " + name + " Added \n\n" + service.getList();
+            } else {
+                service.addItem(name, new Tuple<>(price, 1));
+                return name + " Added \n\n" + service.getList();
+            }
+
         } else {
             int quantity = paramGetQuantity(param, 1);
             if (quantity > 0) {
                 service.addItem(name, quantity);
                 return quantity + " " + name + " Added \n\n" + service.getList();
-            }
-            else {
+            } else {
                 service.addItem(name);
                 return name + " Added \n\n" + service.getList();
             }
@@ -57,13 +62,13 @@ public class ShopReader {
     public String remove(Param param) {
         String name = paramGetName(param);
         if (service.listContains(name)) {
-            int quantity = paramGetQuantity(param, 2);
+            int quantity = paramGetQuantity(param, 1);
             if (quantity > 0) {
                 service.removeItem(name, quantity);
-                return quantity + " " + name + " Removed" + "\n\n" + service.getList();
+                return quantity + " " + name + " Removed \n\n" + service.getList();
             } else {
                 service.removeItem(name);
-                return "All " + name + " Removed" + "\n\n" + service.getList();
+                return "All " + name + " Removed \n\n" + service.getList();
             }
         } else {
             name = name != null ? name : param.getArgs()[0];
@@ -81,12 +86,13 @@ public class ShopReader {
     @Generated
     private String paramGetName(Param param) {
 
-        return  Util.isNumeric(param.getArgs()[0]) &&
+        return Util.isNumeric(param.getArgs()[0]) &&
                 service.getItemName(Integer.parseInt(param.getArgs()[0])) != null ?
 
                 service.getItemName(Integer.parseInt(param.getArgs()[0])) :
                 param.getArgs()[0];
     }
+
     @Generated
     private int paramGetQuantity(Param param, int position) {
         return param.getArgs().length > position && Util.isNumeric(param.getArgs()[position]) ?
