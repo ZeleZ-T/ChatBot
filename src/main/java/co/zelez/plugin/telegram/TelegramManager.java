@@ -7,47 +7,43 @@ import co.zelez.core.common.FileManager;
 import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.ShoppingService;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import lombok.Generated;
 
-import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
+import org.telegram.telegrambots.longpolling.BotSession;
+import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
+import org.telegram.telegrambots.longpolling.starter.AfterBotRegistration;
+import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.io.File;
 import java.util.HashMap;
 
-public class TelegramManager implements LongPollingSingleThreadUpdateConsumer {
+@Component
+public class TelegramManager implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
     private final HashMap<Long, ShopRepository> repository = new HashMap<>();
     private final TelegramClient telegramClient;
     private final FileManager fileManager;
+    private final String botToken;
 
-    @Generated
-    public TelegramManager(String botToken, TelegramClient client) {
-        telegramClient = client;
-        fileManager = new FileManager("storage/data.json");
+    public TelegramManager() {
+        this(System.getenv("TELEGRAM_TOKEN"),
+                new OkHttpTelegramClient(System.getenv("TELEGRAM_TOKEN")),
+                new FileManager("storage/data.json"));
+    }
 
+    public TelegramManager(String botToken, TelegramClient telegramClient, FileManager fileManager) {
+        this.botToken = botToken;
+        this.telegramClient = telegramClient;
+        this.fileManager = fileManager;
         repository.putAll(fileManager.getShopData());
-
-        try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
-            botsApplication.registerBot(botToken, this);
-            System.out.println("Successfully started!");
-            Thread.currentThread().join();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println("Successfully started!");
     }
 
-    public TelegramManager(TelegramClient client, FileManager manager) {
-        telegramClient = client;
-        fileManager = manager;
-    }
 
     @Override
     public void consume(Update update) {
@@ -102,5 +98,20 @@ public class TelegramManager implements LongPollingSingleThreadUpdateConsumer {
         ShoppingService service = new ShoppingService(repository);
         ShopReader reader = new ShopReader(service);
         return new ReaderService(reader);
+    }
+
+    @Override
+    public String getBotToken() {
+        return botToken;
+    }
+
+    @Override
+    public LongPollingUpdateConsumer getUpdatesConsumer() {
+        return this;
+    }
+
+    @AfterBotRegistration
+    public void afterRegistration(BotSession botSession) {
+        System.out.println("Registered bot running state is: " + botSession.isRunning());
     }
 }
