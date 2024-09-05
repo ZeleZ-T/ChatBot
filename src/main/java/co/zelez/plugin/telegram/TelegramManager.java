@@ -4,6 +4,7 @@ import co.zelez.core.command.reader.entity.Param;
 import co.zelez.core.command.reader.usecase.ReaderService;
 import co.zelez.core.command.reader.usecase.ShopReader;
 import co.zelez.core.common.FileManager;
+import co.zelez.core.metric.usecase.MetricService;
 import co.zelez.core.shopping.repository.ShopRepository;
 import co.zelez.core.shopping.usecase.ShoppingService;
 
@@ -21,7 +22,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Date;
+import java.sql.Timestamp;
 import java.util.HashMap;
+
+import static co.zelez.core.metric.usecase.MetricService.metric;
 
 @Component
 public class TelegramManager implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
@@ -79,6 +84,8 @@ public class TelegramManager implements SpringLongPollingBot, LongPollingSingleT
             } catch (TelegramApiException e) {
                 throw new RuntimeException(e);
             }
+            Date date = new Date();
+            metric().save(new Timestamp(date.getTime()), chat_id);
             fileManager.setShopData(repository);
         }
     }
