@@ -23,10 +23,14 @@ public class MetricService implements IMetricService{
                 String url = System.getenv("DATABASE_URL");
                 String user = System.getenv("DATABASE_USER");
                 String password = System.getenv("DATABASE_PASSWORD");
+
                 Connection connection = DriverManager.getConnection(url, user, password);
                 Statement statement = connection.createStatement();
                 metricService = metric(new MetricRepository(connection, statement));
-            } catch (Exception ignored) { }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
         return metricService;
     }
@@ -36,7 +40,7 @@ public class MetricService implements IMetricService{
         return metricService;
     }
 
-        @Override
+    @Override
     public void save(Timestamp timestamp, long userId) {
         metricRepository.saveMetric(timestamp, userId);
     }

@@ -13,12 +13,12 @@ public class MetricRepository implements IMetricRepository {
     @Override
     public void saveMetric(Timestamp timestamp, long userId) {
         try {
-            String query = "INSERT INTO metrics (timestamp, user_id) VALUES (?, ?);";
+            String query = "INSERT INTO metrics (chat_id, timestamp) VALUES (?, ?);";
             PreparedStatement prepared = connection.prepareStatement(query);
-            prepared.setTimestamp(1, timestamp);
-            prepared.setLong(2, userId);
+            prepared.setLong(1, userId);
+            prepared.setTimestamp(2, timestamp);
 
-            statement.executeQuery(query);
+            prepared.executeUpdate();
         } catch (Exception ignored) { }
     }
 
