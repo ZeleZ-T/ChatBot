@@ -59,3 +59,5 @@ bin/
 
 ## Secrets ##
 /src/main/resources/secrets.properties
+/.env
+/.idea/
