@@ -27,10 +27,7 @@ public class MetricService implements IMetricService{
                 Connection connection = DriverManager.getConnection(url, user, password);
                 Statement statement = connection.createStatement();
                 metricService = metric(new MetricRepository(connection, statement));
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
+            } catch (Exception e) { }
         }
         return metricService;
     }

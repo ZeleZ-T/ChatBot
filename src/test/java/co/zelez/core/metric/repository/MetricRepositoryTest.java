@@ -33,18 +33,18 @@ class MetricRepositoryTest {
         PreparedStatement prepared = spy();
         doReturn(prepared).when(connection).prepareStatement(any());
 
-        doNothing().when(prepared).setTimestamp(1, testTime);
-        doNothing().when(prepared).setLong(2, testUserId);
+        doNothing().when(prepared).setLong(1, testUserId);
+        doNothing().when(prepared).setTimestamp(2, testTime);
 
-        doReturn(null).when(statement).executeQuery(anyString());
+        doReturn(0).when(prepared).executeUpdate();
 
         //Act
         metricRepository.saveMetric(testTime, testUserId);
 
         //Assert
-        verify(prepared, atLeastOnce()).setTimestamp(1, testTime);
-        verify(prepared, atLeastOnce()).setLong(2, testUserId);
-        verify(statement, atLeastOnce()).executeQuery(anyString());
+        verify(prepared, atLeastOnce()).setLong(1, testUserId);
+        verify(prepared, atLeastOnce()).setTimestamp(2, testTime);
+        verify(prepared, atLeastOnce()).executeUpdate();
     }
 
     @Test
