@@ -3,10 +3,11 @@ package co.zelez.core.metric.usecase;
 import co.zelez.core.metric.entity.ChatMetrics;
 import co.zelez.core.metric.repository.IMetricRepository;
 import co.zelez.core.metric.repository.MetricRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.Timestamp;
 
 public class MetricService implements IMetricService{
@@ -25,8 +26,7 @@ public class MetricService implements IMetricService{
                 String password = System.getenv("DATABASE_PASSWORD");
 
                 Connection connection = DriverManager.getConnection(url, user, password);
-                Statement statement = connection.createStatement();
-                metricService = metric(new MetricRepository(connection, statement));
+                metricService = metric(new MetricRepository(connection));
             } catch (Exception e) { }
         }
         return metricService;
