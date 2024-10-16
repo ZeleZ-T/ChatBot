@@ -1,0 +1,11 @@
+CREATE USER IF NOT EXISTS 'user'@'%' IDENTIFIED BY 'password';
+grant all on *.* to 'user'@'%';
+
+CREATE DATABASE IF NOT EXISTS CHATBOT;
+USE CHATBOT;
+CREATE TABLE IF NOT EXISTS metrics
+(
+    id        INTEGER PRIMARY KEY AUTO_INCREMENT,
+    chat_id   LONG   NOT NULL,
+    timestamp TIMESTAMP NOT NULL
+);
