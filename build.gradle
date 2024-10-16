@@ -24,6 +24,7 @@ dependencies {
     implementation 'org.telegram:telegrambots-client:7.9.1'
     implementation 'org.telegram:telegrambots-springboot-longpolling-starter:7.9.1'
 
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'com.google.code.gson:gson:2.11.0'
 

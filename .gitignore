@@ -61,3 +61,6 @@ bin/
 /src/main/resources/secrets.properties
 /.env
 /.idea/
+docker-compose.yml
+migrations/init.sql
+/mysql/

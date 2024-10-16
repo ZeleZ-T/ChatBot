@@ -6,7 +6,6 @@ import co.zelez.core.metric.repository.MetricRepository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.Timestamp;
 
 public class MetricService implements IMetricService{
@@ -25,8 +24,7 @@ public class MetricService implements IMetricService{
                 String password = System.getenv("DATABASE_PASSWORD");
 
                 Connection connection = DriverManager.getConnection(url, user, password);
-                Statement statement = connection.createStatement();
-                metricService = metric(new MetricRepository(connection, statement));
+                metricService = metric(new MetricRepository(connection));
             } catch (Exception e) { }
         }
         return metricService;
